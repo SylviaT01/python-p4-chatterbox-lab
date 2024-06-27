@@ -26,9 +26,10 @@ def messages():
         messages = [message.to_dict() for message in Message.query.order_by(Message.created_at.asc()).all()]
         return make_response(messages, 200)
     elif request.method == 'POST':
+        data = request.get_json()
         new_message = Message(
-            body = request.form.get("body"),
-            username = request.form.get("username")
+            body=data['body'],
+            username=data['username']
         )
         db.session.add(new_message)
         db.session.commit()
@@ -43,8 +44,9 @@ def messages_by_id(id):
             if request.method == 'GET':
                 return make_response(message.to_dict(), 200)
             elif request.method == 'PATCH':
-                for attr in request.form:
-                    setattr(message, attr, request.form[attr])
+                data = request.get_json()
+                for attr in data:
+                    setattr(message, attr, data[attr])
                     db.session.add(message)
                     db.session.commit()
                     return make_response(message.to_dict(), 200)
